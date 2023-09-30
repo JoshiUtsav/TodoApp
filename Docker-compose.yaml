@@ -1,0 +1,45 @@
+version: '3'
+services:
+  # Frontend (React) service
+  frontend:
+    build:
+      context: ./client # Specify the path to the client folder
+      dockerfile: Dockerfile # Specify the name of your frontend Dockerfile
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    working_dir: /app/client # Set the working directory for the frontend
+    networks:
+      - mern-network
+
+  # Node.js server
+  server:
+    build:
+      context: ./server # Specify the path to the server folder
+      dockerfile: Dockerfile # Specify the name of your server Dockerfile
+    ports:
+      - "8080:8080" # Map host port 8080 to container port 8080
+    working_dir: /app/server # Set the working directory for the server
+    depends_on:
+      - database
+    environment:
+      - MONGODB_URI=mongodb+srv://utsavjoshi:kisnautsav@todoapp.1qdoqdz.mongodb.net/?retryWrites=true&w=majority
+    networks:
+      - mern-network
+
+  # MongoDB database
+  database:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017" # Map host port 27017 to container port 27017
+    volumes:
+      - mongo-data:/data/db # Mount a volume for database persistence
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
